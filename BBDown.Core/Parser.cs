@@ -48,13 +48,13 @@ namespace BBDown.Core
             if (tvApi)
             {
                 api = (Config.TOKEN != "" ? $"access_key={Config.TOKEN}&" : "") +
-                    $"object_id={aid}&appkey=4409e2ce8ffd12b8&build=106500" +
+                    $"object_id={aid}&appkey=4409e2ce8ffd12b8&build=107000" +
                     $"&cid={cid}&device=android" +
                     $"&fnval=4048&fnver=0&fourk=1" +
                     $"&mid=0&mobi_app=android_tv_yst" +
                     $"&playurl_type=1&platform=android" +
-                    $"&qn={qn}";
-                api = prefix + api;
+                    $"&qn={qn}&ts={GetTimeStamp(true)}";
+                api = prefix + api + $"&sign={GetSign(api, false)}";
             }
             else
             {
