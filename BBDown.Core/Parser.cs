@@ -42,7 +42,8 @@ namespace BBDown.Core
                     $"&fnval=4048&fnver=0&fourk=1" +
                     $"&mid=0&mobi_app=android_tv_yst" +
                     $"&module=bangumi&npcybs=0&otype=json&platform=android" +
-                    $"&qn={qn}&ts={GetTimeStamp(true)}";
+                    $"&qn={qn}&ts={GetTimeStamp(true)}" +
+                    $"&object_id=1603362009";
                 api = prefix + api + $"&sign={GetSign(api, false)}";
             }
             else
