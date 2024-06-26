@@ -480,7 +480,7 @@ namespace BBDown.Core
         [GeneratedRegex("http.*:\\d+")]
         private static partial Regex BaseUrlRegex();
 
-        public static string AppSign(Dictionary<string, object> parameters, string appkey, string appsec)
+        public static string AppSign(Dictionary<string, string> parameters, string appkey, string appsec)
         {
             parameters["appkey"] = appkey;
 
