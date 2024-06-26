@@ -48,14 +48,20 @@ namespace BBDown.Core
             }
             if (tvApi)
             {
-                api = (Config.TOKEN != "" ? $"access_key={Config.TOKEN}&" : "") +
-                    $"object_id={aid}&appkey=4409e2ce8ffd12b8&build=107000" +
+                // 先构造sign
+                api = $"object_id={aid}&appkey=4409e2ce8ffd12b8" +
+                    $"&platform=android&playurl_type=2" +
+                    $"&qn={qn}&ts={GetTimeStamp(true)}";
+                api = api + $"&sign={GetSign(api, false)}";
+
+                // 补充
+                api = prefix + api + 
+                    (Config.TOKEN != "" ? $"access_key={Config.TOKEN}&" : "") +
+                    $"&build=107000" +
                     $"&cid={cid}&device=android" +
                     $"&fnval=4048&fnver=0&fourk=1" +
                     $"&mid=0&mobi_app=android_tv_yst" +
-                    $"&playurl_type=1&platform=android" +
-                    $"&qn={qn}&ts={GetTimeStamp(true)}";
-                api = prefix + api + $"&sign={GetSign(api, false)}";
+                    $"&platform=android";
             }
             else
             {
