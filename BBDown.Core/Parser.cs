@@ -1,4 +1,7 @@
-﻿using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using static BBDown.Core.Logger;
@@ -44,24 +47,24 @@ namespace BBDown.Core
                     $"&module=bangumi&npcybs=0&otype=json&platform=android" +
                     $"&qn={qn}&ts={GetTimeStamp(true)}" +
                     $"&object_id=1603362009";
-                api = prefix + api + $"&sign={GetSign(api, false)}";
+
+                // 计算sign
+                string appkey = "1d8b6e7d45233436";
+                string appsec = "560c52ccd288fed045859ed18bffd973";
+                string signature = AppSign(ParseQueryString(api), appkey, appsec);
+                
+                api = prefix + api + $"&sign={signature}";
             }
             if (tvApi)
             {
-                // 先构造sign
-                api = $"object_id={aid}&appkey=4409e2ce8ffd12b8" +
-                    $"&platform=android&playurl_type=2";
-                api = api + $"&sign={GetSign(api, false)}";
-
-                // 补充
-                api = prefix + api + 
-                    (Config.TOKEN != "" ? $"&access_key={Config.TOKEN}" : "") +
-                    $"&build=107000" +
+                api = (Config.TOKEN != "" ? $"access_key={Config.TOKEN}&" : "") +
+                    $"object_id={aid}&appkey=4409e2ce8ffd12b8&build=107000" +
                     $"&cid={cid}&device=android" +
                     $"&fnval=4048&fnver=0&fourk=1" +
                     $"&mid=0&mobi_app=android_tv_yst" +
-                    $"&platform=android" +
+                    $"&playurl_type=1&platform=android" +
                     $"&qn={qn}&ts={GetTimeStamp(true)}";
+                api = prefix + api + $"&sign={GetSign(api, false)}";
             }
             else
             {
@@ -476,5 +479,53 @@ namespace BBDown.Core
         private static partial Regex PlayerJsonRegex();
         [GeneratedRegex("http.*:\\d+")]
         private static partial Regex BaseUrlRegex();
+
+        public static string AppSign(Dictionary<string, object> parameters, string appkey, string appsec)
+        {
+            parameters["appkey"] = appkey;
+
+            var sortedParams = parameters.OrderBy(p => p.Key)
+                                         .Select(p => $"{p.Key}={p.Value}")
+                                         .ToList();
+
+            string concatenatedParams = string.Join("&", sortedParams);
+            string dataToHash = concatenatedParams + appsec;
+    
+            return MD5Hash(dataToHash);
+        }
+
+        public static string MD5Hash(string input)
+        {
+            using (var md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hashBytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+
+                return sb.ToString();
+            }
+        }
+
+        public static Dictionary<string, string> ParseQueryString(string query)
+        {
+            var parameters = new Dictionary<string, string>();
+
+            string[] pairs = query.Split('&');
+            foreach (string pair in pairs)
+            {
+                string[] keyValue = pair.Split('=');
+                if (keyValue.Length == 2)
+                {
+                    parameters[keyValue[0]] = keyValue[1];
+                }
+            }
+
+            return parameters;
+        }
     }
 }
