@@ -47,13 +47,7 @@ namespace BBDown.Core
                     $"&module=bangumi&npcybs=0&otype=json&platform=android" +
                     $"&qn={qn}&ts={GetTimeStamp(true)}" +
                     $"&object_id=1603362009";
-
-                // 计算sign
-                string appkey = "1d8b6e7d45233436";
-                string appsec = "560c52ccd288fed045859ed18bffd973";
-                string signature = AppSign(ParseQueryString(api), appkey, appsec);
-                
-                api = prefix + api + $"&sign={signature}";
+                api = prefix + api + $"&sign={GetSign(api, false)}";
             }
             if (tvApi)
             {
@@ -64,7 +58,13 @@ namespace BBDown.Core
                     $"&mid=0&mobi_app=android_tv_yst" +
                     $"&playurl_type=1&platform=android" +
                     $"&qn={qn}&ts={GetTimeStamp(true)}";
-                api = prefix + api + $"&sign={GetSign(api, false)}";
+
+                // 计算sign
+                string appkey = "1d8b6e7d45233436";
+                string appsec = "560c52ccd288fed045859ed18bffd973";
+                string signature = AppSign(ParseQueryString(api), appkey, appsec);
+                
+                api = prefix + api + $"&sign={signature}";
             }
             else
             {
