@@ -485,12 +485,12 @@ namespace BBDown.Core
             parameters["appkey"] = appkey;
 
             var sortedParams = parameters.OrderBy(p => p.Key)
-                                         .Select(p => $"{p.Key}={p.Value}")
+                                         .Select(p => $"{p.Key}={Uri.EscapeDataString(p.Value)}")
                                          .ToList();
 
             string concatenatedParams = string.Join("&", sortedParams);
             string dataToHash = concatenatedParams + appsec;
-    
+
             return MD5Hash(dataToHash);
         }
 
