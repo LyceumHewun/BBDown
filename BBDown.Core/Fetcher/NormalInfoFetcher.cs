@@ -95,11 +95,13 @@ namespace BBDown.Core.Fetcher
                         var choices = question.GetProperty("choices").EnumerateArray().ToList();
                         foreach (var page in choices)
                         {
+                            var option = page.GetProperty("option").ToString().Trim();
+                            var cid0 = page.GetProperty("cid").GetInt64();
                             Page p = new(index++,
                                 id,
                                 page.GetProperty("cid").ToString(),
                                 "", //epid
-                                page.GetProperty("option").ToString().Trim(),
+                                $"{option}-{cid0}",
                                 0,
                                 "",
                                 pubTime, //分p视频没有发布时间
