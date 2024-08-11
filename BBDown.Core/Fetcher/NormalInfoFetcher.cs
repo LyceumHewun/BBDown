@@ -83,7 +83,7 @@ namespace BBDown.Core.Fetcher
 
                     // 解析分P信息
                     var edges = edgeInfoData.GetProperty("edges");
-                    if (edges.TryGetProperty("questions", out _))
+                    if (!edges.TryGetProperty("questions", out _))
                     {
                         continue;
                     }
