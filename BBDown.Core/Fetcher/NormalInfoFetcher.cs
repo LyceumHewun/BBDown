@@ -82,8 +82,13 @@ namespace BBDown.Core.Fetcher
                     var isLeaf = edgeInfoData.GetProperty("is_leaf").GetInt16(); // 0：当前模块为普通模块 1：当前模块为结束模块
 
                     // 解析分P信息
-                    var questions = edgeInfoData.GetProperty("edges").GetProperty("questions").EnumerateArray()
-                        .ToList();
+                    var edges = edgeInfoData.GetProperty("edges");
+                    if (edges.TryGetProperty("questions", out _))
+                    {
+                        break;
+                    }
+
+                    var questions = edges.GetProperty("questions").EnumerateArray().ToList();
                     var index = 2; // 互动视频分P索引从2开始
                     foreach (var question in questions)
                     {
