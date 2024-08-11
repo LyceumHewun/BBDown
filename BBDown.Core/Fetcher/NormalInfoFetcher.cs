@@ -56,16 +56,32 @@ namespace BBDown.Core.Fetcher
                 var playerSoText = await GetWebSourceAsync(playerSoApi);
                 var playerSoXml = new XmlDocument();
                 playerSoXml.LoadXml($"<root>{playerSoText}</root>");
-                
+
                 var interactionNode = playerSoXml.SelectSingleNode("//interaction");
 
-                if (interactionNode is { InnerText.Length: > 0 })
+                if (interactionNode is not { InnerText.Length: > 0 })
                 {
-                    var graphVersion = JsonDocument.Parse(interactionNode.InnerText).RootElement
-                        .GetProperty("graph_version").GetInt64();
-                    var edgeInfoApi = $"https://api.bilibili.com/x/stein/edgeinfo_v2?graph_version={graphVersion}&bvid={bvid}";
+                    throw new Exception("互动视频获取分P信息失败");
+                }
+
+                var edgeIds = new List<long> { 0 }; // 模块id 从0开始
+                var graphVersion = JsonDocument.Parse(interactionNode.InnerText).RootElement
+                    .GetProperty("graph_version").GetInt64();
+
+                while (edgeIds.Count > 0)
+                {
+                    var edgeId = edgeIds[0];
+                    edgeIds.RemoveAt(0); // left shift
+
+                    var edgeInfoApi =
+                        $"https://api.bilibili.com/x/stein/edgeinfo_v2?graph_version={graphVersion}&bvid={bvid}&edge_id={edgeId}";
                     var edgeInfoJson = await GetWebSourceAsync(edgeInfoApi);
                     var edgeInfoData = JsonDocument.Parse(edgeInfoJson).RootElement.GetProperty("data");
+
+                    // 判断是否为结束模块
+                    var isLeaf = edgeInfoData.GetProperty("is_leaf").GetInt16(); // 0：当前模块为普通模块 1：当前模块为结束模块
+
+                    // 解析分P信息
                     var questions = edgeInfoData.GetProperty("edges").GetProperty("questions").EnumerateArray()
                         .ToList();
                     var index = 2; // 互动视频分P索引从2开始
@@ -88,12 +104,13 @@ namespace BBDown.Core.Fetcher
                                 ownerMid
                             );
                             pagesInfo.Add(p);
+
+                            if (isLeaf == 0)
+                            {
+                                edgeIds.Add(page.GetProperty("id").GetInt64());
+                            }
                         }
                     }
-                }
-                else
-                {
-                    throw new Exception("互动视频获取分P信息失败");
                 }
             }
 
