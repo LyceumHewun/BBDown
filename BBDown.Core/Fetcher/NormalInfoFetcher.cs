@@ -85,7 +85,7 @@ namespace BBDown.Core.Fetcher
                     var edges = edgeInfoData.GetProperty("edges");
                     if (edges.TryGetProperty("questions", out _))
                     {
-                        break;
+                        continue;
                     }
 
                     var questions = edges.GetProperty("questions").EnumerateArray().ToList();
